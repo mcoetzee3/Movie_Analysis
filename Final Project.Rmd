@@ -1,0 +1,265 @@
+---
+title: "Final Project"
+author: "Brooks Coetzee III"
+date: "2022-10-03"
+output: html_document
+---
+
+Packages
+```{r}
+library(rvest)
+library(xml2)
+library(tidyverse)
+library(ggplot2)
+```
+Get URL & Data Frame for first 50
+```{r}
+imdb <- 'https://www.imdb.com/search/title/?title_type=feature&release_date=2018-01-01,2018-12-31'
+imdb_web <- read_html(imdb)
+rank_data <- imdb_web%>%
+  html_nodes('.text-primary')%>%
+  html_text()
+
+rank_data<-as.numeric(rank_data)
+
+#title
+title <- imdb_web%>%
+  html_nodes('.lister-item-header a')%>%
+  html_text()
+
+#RunTime
+runtime <- imdb_web%>%
+  html_nodes('.runtime')%>%
+  html_text()
+
+runtime <- gsub(" min","",runtime)
+runtime<-as.numeric(runtime)
+
+#genre
+genre <- imdb_web%>%
+  html_nodes('.genre')%>%
+  html_text()
+genre<-gsub("\n","",genre)
+genre<-gsub(" ","",genre)
+genre<-gsub(",.*","",genre)
+
+#Rating
+rating <- imdb_web%>%
+  html_nodes('.ratings-imdb-rating strong')%>%
+  html_text()
+
+rating <- as.numeric(rating)
+imdbdf <- data.frame(Rank = rank_data, Title = title, RunTime = runtime, Genre = genre, Rating = rating)
+str(imdbdf)
+View(imdbdf)
+```
+Get URL & Data Frame for second 50
+
+```{r}
+imdb2 <- 'https://www.imdb.com/search/title/?title_type=feature&release_date=2018-01-01,2018-12-31&start=51&ref_=adv_nxt'
+imdb_web2 <- read_html(imdb2)
+rank_data <- imdb_web%>%
+  html_nodes('.text-primary')%>%
+  html_text()
+
+rank_data<-as.numeric(rank_data)
+rank_data <- rank_data + 50
+
+#title
+title <- imdb_web2%>%
+  html_nodes('.lister-item-header a')%>%
+  html_text()
+
+#RunTime
+runtime <- imdb_web2%>%
+  html_nodes('.runtime')%>%
+  html_text()
+
+runtime <- gsub(" min","",runtime)
+runtime<-as.numeric(runtime)
+
+#genre
+genre <- imdb_web2%>%
+  html_nodes('.genre')%>%
+  html_text()
+genre<-gsub("\n","",genre)
+genre<-gsub(" ","",genre)
+genre<-gsub(",.*","",genre)
+
+#Rating
+rating <- imdb_web2%>%
+  html_nodes('.ratings-imdb-rating strong')%>%
+  html_text()
+
+rating <- as.numeric(rating)
+imdbdf2 <- data.frame(Rank = rank_data, Title = title, RunTime = runtime, Genre = genre, Rating = rating)
+str(imdbdf2)
+View(imdbdf2)
+```
+Get URL & Data Frame for third 50
+
+```{r}
+imdb3 <- 'https://www.imdb.com/search/title/?title_type=feature&release_date=2018-01-01,2018-12-31&start=101&ref_=adv_nxt'
+imdb_web3 <- read_html(imdb3)
+rank_data <- imdb_web%>%
+  html_nodes('.text-primary')%>%
+  html_text()
+
+rank_data<-as.numeric(rank_data)
+rank_data <- rank_data + 100
+
+#title
+title <- imdb_web3%>%
+  html_nodes('.lister-item-header a')%>%
+  html_text()
+
+#RunTime
+runtime <- imdb_web3%>%
+  html_nodes('.runtime')%>%
+  html_text()
+
+runtime <- gsub(" min","",runtime)
+runtime<-as.numeric(runtime)
+
+#genre
+genre <- imdb_web3%>%
+  html_nodes('.genre')%>%
+  html_text()
+genre<-gsub("\n","",genre)
+genre<-gsub(" ","",genre)
+genre<-gsub(",.*","",genre)
+
+#Rating
+rating <- imdb_web3%>%
+  html_nodes('.ratings-imdb-rating strong')%>%
+  html_text()
+
+rating <- as.numeric(rating)
+imdbdf3 <- data.frame(Rank = rank_data, Title = title, RunTime = runtime, Genre = genre, Rating = rating)
+str(imdbdf3)
+View(imdbdf3)
+```
+
+Get URL & Data Frame for fourth 50, Giving us 200 results
+
+```{r}
+imdb4 <- 'https://www.imdb.com/search/title/?title_type=feature&release_date=2018-01-01,2018-12-31&start=151&ref_=adv_nxt'
+imdb_web4 <- read_html(imdb4)
+rank_data <- imdb_web4%>%
+  html_nodes('.text-primary')%>%
+  html_text()
+
+rank_data<-as.numeric(rank_data)
+
+
+#title
+title <- imdb_web4%>%
+  html_nodes('.lister-item-header a')%>%
+  html_text()
+
+#RunTime
+runtime <- imdb_web4%>%
+  html_nodes('.runtime')%>%
+  html_text()
+
+runtime <- gsub(" min","",runtime)
+runtime<-as.numeric(runtime)
+
+#genre
+genre <- imdb_web4%>%
+  html_nodes('.genre')%>%
+  html_text()
+genre<-gsub("\n","",genre)
+genre<-gsub(" ","",genre)
+genre<-gsub(",.*","",genre)
+
+#Rating
+rating <- imdb_web4%>%
+  html_nodes('.ratings-imdb-rating strong')%>%
+  html_text()
+
+rating <- as.numeric(rating)
+imdbdf4<- data.frame(Rank = rank_data, Title = title, RunTime = runtime, Genre = genre, Rating = rating)
+str(imdbdf4)
+View(imdbdf4)
+```
+combine all the data
+```{r}
+film.df <- rbind.data.frame(imdbdf,imdbdf2,imdbdf3,imdbdf4)
+str(film.df)
+view(film.df)
+```
+Count of film types by Genre:
+```{r}
+Genre.table <- table(film.df$Genre)
+barplot(Genre.table)
+```
+
+
+Visuals
+
+```{r}
+ggplot(data = film.df, aes(x = Rating, y = RunTime, fill = Genre))+
+  geom_bar(stat = 'identity', width = 0.5)
+```
+```{r}
+under2hrmovies <- film.df%>%
+  filter(RunTime<120)
+under2hrmovies <- as.data.frame(under2hrmovies)
+view(under2hrmovies)
+
+ggplot(under2hrmovies, aes(Genre, Rating))+
+  geom_bar(position = "dodge",
+           stat = "summary",
+           fun = "mean")
+```
+
+
+
+
+
+
+```{r}
+ggplot(under2hrmovies, aes(Genre, Rank))+
+  geom_bar(position = "dodge",
+           stat = "summary",
+           fun = "mean")
+```
+
+```{r}
+ggplot(film.df, aes(Genre, RunTime))+
+  geom_bar(position = "dodge",
+           stat = "summary",
+           fun = "mean")
+```
+
+```{r}
+horror_movies <- filter(film.df, Genre == 'Horror')
+
+ggplot(horror_movies, aes(RunTime))+
+  geom_density(fill = 'red')
+
+```
+```{r}
+action <- filter(film.df, Genre == 'Action')
+
+ggplot(action, aes(RunTime, Rating))+
+  geom_point()+
+  geom_smooth()
+
+com  <- filter(film.df, Genre == 'Comedy')
+
+ggplot(com, aes(RunTime, Rating))+
+  geom_point()+
+  geom_smooth()
+
+an  <- filter(film.df, Genre == 'Animation')
+
+ggplot(an, aes(RunTime, Rating))+
+  geom_point()+
+  geom_smooth()
+```
+
+
+
+
